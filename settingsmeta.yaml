@@ -1,22 +1,27 @@
 
 skillMetadata:
   sections:
-    - name: Options << Name of section
+    - name: Update Settings
       fields:
-        - name: internal_python_variable_name
+        - name: scripts_repo
           type: text
-          label: Setting Friendly Display Name
-          value: ""
-          placeholder: demo prompt in the input box
-    - name: Login << Name of another section
+          label: Repository url to update scripts from
+          value: https://github.com/NeonGeckoCom/neon-scripts
+        - name: scripts_branch
+          type: text
+          label: Repository branch to update scripts from
+          value: master
+        - name: allow_update
+          type: checkbox
+          label: Allow update of scripts via intent (disable to prevent requests to update scripts)
+          value: "true"
+        - name: auto_update
+          type: checkbox
+          label: Automatically update scripts from git remote
+          value: "true"
+    - name: Internal Settings
       fields:
-        - type: label
-          label: Just a little bit of extra info for the user to understand following settings
-        - name: username
+        - name: last_updated
           type: text
-          label: Username
-          value: ""
-        - name: password
-          type: password
-          label: Password
-          value: ""
+          label: Last Update Time
+          value:
