@@ -155,7 +155,7 @@ class CustomConversations(MycroftSkill):
         # self.allow_update = self.settings["allow_update"]
 
     def initialize(self):
-        self.make_active(-1)  # Make this skill active so that it never
+        self.make_active()  # Make this skill active so that it never
         # create_daemon(self.server_bus.run_forever())
 
         self.runtime_execution = {
