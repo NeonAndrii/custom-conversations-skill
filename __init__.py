@@ -246,7 +246,7 @@ class CustomConversations(MycroftSkill):
         LOG.info(available)
         if available:
             self.speak_dialog("available_script", {"available": f'{", ".join(available[:-1])}, and {available[-1]}'})
-            if message.context["mobile"]:
+            if message.context.get("mobile", None):
                 self.socket_io_emit("scripts_list", f"&files={available}", message.context["flac_filename"])
 
     @intent_handler(IntentBuilder("SetDefault").require('default'))
