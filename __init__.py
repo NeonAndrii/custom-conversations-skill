@@ -104,6 +104,10 @@ class CustomConversations(MycroftSkill):
 
     def __init__(self):
         super(CustomConversations, self).__init__(name="CustomConversations")
+
+        if skill_needs_patching(self):
+            stub_missing_parameters(self)
+
         self.file_ext = ".ncs"
         self.text_location = f"{self.__location__}/script_txt"
         self.audio_location = f"{self.__location__}/script_audio"
@@ -144,8 +148,6 @@ class CustomConversations(MycroftSkill):
         self.allow_update = self.settings["allow_update"]
 
     def initialize(self):
-        if skill_needs_patching(self):
-            stub_missing_parameters(self)
         self.make_active(-1)  # Make this skill active so that it never
         # create_daemon(self.server_bus.run_forever())
 
