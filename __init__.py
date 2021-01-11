@@ -147,10 +147,10 @@ class CustomConversations(MycroftSkill):
         self.auto_update = False
         self.allow_update = False
 
-        if self.settings["skillMetadata"]["sections"]["fields"]["allow_update"] == "true":
-            self.allow_update = True
-        if self.settings["skillMetadata"]["sections"]["fields"]["auto_update"] == "true":
-            self.auto_update = True
+        # if self.settings["skillMetadata"]["sections"]["fields"]["allow_update"] == "true":
+        #     self.allow_update = True
+        # if self.settings["skillMetadata"]["sections"]["fields"]["auto_update"] == "true":
+        #     self.auto_update = True
         # self.auto_update = self.settings['auto_update']
         # self.allow_update = self.settings["allow_update"]
 
