@@ -55,6 +55,7 @@ from git import InvalidGitRepositoryError
 from mycroft.messagebus.message import Message
 from mycroft.skills.core import MycroftSkill, intent_handler
 from mycroft.util.log import LOG
+from neon_utils import stub_missing_parameters, skill_needs_patching
 # from NGI.utilities.utilHelper import scrape_page_for_links as scrape
 from neon_utils.web_utils import scrape_page_for_links as scrape
 # from NGI.utilities.parseUtils import clean_quotes
@@ -107,7 +108,8 @@ class CustomConversations(MycroftSkill):
         self.text_location = f"{self.__location__}/script_txt"
         self.audio_location = f"{self.__location__}/script_audio"
         self.transcript_location = f"{self.__location__}/script_transcript"
-        self.tz = gettz(self.user_info_available["location"]["tz"])
+        # self.tz = gettz(self.user_info_available["location"]["tz"])
+        self.tz = self.location_timezone
         # self.update_message = False
         self.reload_skill = False  # This skill should not be reloaded or else active users break
         self.runtime_execution, self.variable_functions = {}, {}
@@ -142,6 +144,8 @@ class CustomConversations(MycroftSkill):
         self.allow_update = self.settings["allow_update"]
 
     def initialize(self):
+        if skill_needs_patching(self):
+            stub_missing_parameters(self)
         self.make_active(-1)  # Make this skill active so that it never
         # create_daemon(self.server_bus.run_forever())
 
