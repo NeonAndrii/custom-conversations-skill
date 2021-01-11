@@ -144,8 +144,15 @@ class CustomConversations(MycroftSkill):
 
         self.speak_timeout = 5
         self.response_timeout = 10
-        self.auto_update = self.settings['auto_update']
-        self.allow_update = self.settings["allow_update"]
+        self.auto_update = False
+        self.allow_update = False
+
+        if self.settings["skillMetadata"]["sections"]["fields"]["allow_update"] == "true":
+            self.allow_update = True
+        if self.settings["skillMetadata"]["sections"]["fields"]["auto_update"] == "true":
+            self.auto_update = True
+        # self.auto_update = self.settings['auto_update']
+        # self.allow_update = self.settings["allow_update"]
 
     def initialize(self):
         self.make_active(-1)  # Make this skill active so that it never
