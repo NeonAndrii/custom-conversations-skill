@@ -1,22 +1,3 @@
-# from mycroft import MycroftSkill, intent_file_handler
-#
-#
-# class CustomConversations(MycroftSkill):
-#     def __init__(self):
-#         MycroftSkill.__init__(self)
-#
-#     @intent_file_handler('conversations.custom.intent')
-#     def handle_conversations_custom(self, message):
-#         available = ''
-#
-#         self.speak_dialog('conversations.custom', data={
-#             'available': available
-#         })
-#
-#
-# def create_skill():
-#     return CustomConversations()
-
 # NEON AI (TM) SOFTWARE, Software Development Kit & Application Development System
 #
 # Copyright 2008-2021 Neongecko.com Inc. | All Rights Reserved
@@ -58,8 +39,8 @@ from mycroft.util.log import LOG
 from neon_utils import stub_missing_parameters, skill_needs_patching
 # from NGI.utilities.utilHelper import scrape_page_for_links as scrape
 from neon_utils.web_utils import scrape_page_for_links as scrape
-# from NGI.utilities.parseUtils import clean_quotes
 from neon_utils.parse_utils import clean_quotes
+# from NGI.utilities.parseUtils import clean_quotes
 from mycroft.util.parse import normalize
 from mycroft.util import play_wav
 
@@ -719,11 +700,11 @@ class CustomConversations(MycroftSkill):
 
                                         # Make sure right value is a list for IN/!IN
                                         if left and right and "[" not in right:
-                                            LOG.debug(f"updating right={right}")
+                                            LOG.info(f"updating right={right}")
                                             right = re.sub("}", "[*]}", right)
-                                            LOG.debug(f"updating right={right}")
+                                            LOG.info(f"updating right={right}")
                                             text = f" {comparison} ".join([left, right])
-                                        LOG.debug(text)
+                                        LOG.info(text)
                                     # else:
                                     # LOG.info(f"ABOUT TO PARSE {text} WITH SUBSTITUTE VARIABLES")
                                     parsed_text = self._substitute_variables(user, text, message, False)
@@ -731,19 +712,21 @@ class CustomConversations(MycroftSkill):
                                 else:
                                     parsed_text = text
                                 # parsed_text = normalize(parsed_text)  WYSIWYG, no normalization necessary
-                                LOG.debug(f"runtime_execute({command}|{parsed_text})")
+                                LOG.info(f"runtime_execute({command}|{parsed_text})")
                                 LOG.debug(line_to_evaluate)
                                 message.data["parser_data"] = deepcopy(line_to_evaluate.get("data"))
-                                LOG.debug(f'parser_data={message.data.get("parser_data")}')
+                                LOG.info(f'parser_data={message.data.get("parser_data")}')
 
-                                # TODO: Annotate this DM
+                                # # TODO: Annotate this DM
                                 try:
                                     LOG.info("ENTERING ANOTHER TRY BLOCK IN THE TRY BLOCK")
                                     if message.data.get("parser_data"):
+                                        LOG.info(f'PARSER DATA {message.data.get("parser_data")} and '
+                                                 f'PARSED TEXT {parsed_text}')
                                         for key, val in message.data.get("parser_data").items():
                                             if val and isinstance(val, str) and "{" in val and "}" in val and \
                                                     command != "variable":
-                                                LOG.debug(f"variables in: {val}")
+                                                LOG.info(f"variables in: {val}")
                                                 message.data.get("parser_data")[key] = \
                                                     self._substitute_variables(user, val, message, False)
                                 except Exception as e:
@@ -1256,10 +1239,9 @@ class CustomConversations(MycroftSkill):
         :param text: "else:"
         :param message: incoming messagebus Message
         """
-
-        LOG.info(f"RUN_IF TEXT {text}")
         # active_dict = self.active_conversations[user]
         parsed = message.data.get("parser_data")
+        LOG.info(f"RUN_IF TEXT {text} | PARSED {parsed}")
         if parsed:
             comparator = parsed.get("comparator")
             if comparator == "BOOL":
@@ -1508,6 +1490,7 @@ class CustomConversations(MycroftSkill):
 
         # Locate the else case or next line outside of if
         if not execute_if:
+            LOG.info("LOCATING THE ELSE BLOCK")
             while True:
                 # Found an else at the same level, go to the following line
                 if active_dict["formatted_script"][active_dict["current_index"]]["command"] == "else" and \
@@ -1515,8 +1498,9 @@ class CustomConversations(MycroftSkill):
                     LOG.info(f'DM: Reached else: {active_dict["formatted_script"][active_dict["current_index"]]}')
                     active_dict["current_index"] += 1
                     break
-                # Found an equally indented or outdented line, go here
-                elif active_dict["formatted_script"][active_dict["current_index"]]["indent"] <= if_indent:
+                # Found an equally indented or outdented line that is NOT a comment, go here
+                elif active_dict["formatted_script"][active_dict["current_index"]]["indent"] <= if_indent and \
+                        active_dict["formatted_script"][active_dict["current_index"]]["command"]:
                     LOG.info(f'DM: Reached line outside of if, continue from '
                               f'here: {active_dict["formatted_script"][active_dict["current_index"]]}')
                     break
@@ -2072,7 +2056,6 @@ class CustomConversations(MycroftSkill):
         :param user: nick on klat server, else "local"
         :param text: variable = value
         :param message: incoming messagebus Message
-
         """
         LOG.debug(text)
         if user not in self.active_conversations.keys():
@@ -2262,7 +2245,6 @@ class CustomConversations(MycroftSkill):
         :param user   : nick on klat server, else "local"
         :param content: title and body variable names
         :param message: incoming messagebus Message
-
         """
         LOG.debug(f"DM: {content}")
         if user not in self.active_conversations.keys():
@@ -2805,6 +2787,8 @@ class CustomConversations(MycroftSkill):
             tokens = []
             remainder = line
             join_char = " "
+            # if remainder.endswith(':'):
+            #     remainder = remainder[:-1]
             while " " in remainder:
                 token, remainder = remainder.split(" ", 1)
                 if "(" in token and ")" not in token:
@@ -2813,13 +2797,14 @@ class CustomConversations(MycroftSkill):
                 if (token in variables.keys() or token.split('(')[0] in self.variable_functions.keys()) \
                         and not token.startswith('{') and ('=' not in remainder or '==' in remainder):
                     token = '{' + token + '}'
+                # elif token.startswith('{'):
                 tokens.append(token)
             if (remainder in variables.keys() or remainder.split('(')[0] in self.variable_functions.keys()) \
                     and not remainder.startswith('{'):
                 remainder = '{' + remainder + '}'
             tokens.append(remainder)
 
-            LOG.debug(tokens)
+            LOG.info(f"Non-literal tokens {tokens}")
         elif '{' in line and '}' in line:  # or '(' in line and ')' in line:
             # This is a quoted string with variable substitution
 
@@ -2831,7 +2816,7 @@ class CustomConversations(MycroftSkill):
                 tokens.append(parsed)
                 tokens.append("{" + key + "}")
             tokens.append(remainder)
-            LOG.debug(tokens)
+            LOG.info(f"Quoted string {tokens}")
         LOG.info(f"ITERATING OVER TOKENS {tokens}")
         # Iterate through words and look for a substitution
         for token in tokens:
@@ -2900,6 +2885,7 @@ class CustomConversations(MycroftSkill):
                         var_name = var.split('[')[0]
                     else:
                         var_name = var
+                    LOG.info(f"VAR_NAME {var_name} | DEFINED VARIABLES {variables}")
                     if var_name in variables.keys() and variables[var_name]:
                         raw_val = variables[var_name]
                     # Check if this variable is defined in a script that called this script
@@ -2915,10 +2901,11 @@ class CustomConversations(MycroftSkill):
                         # var = var.split('[')[0]
                         var, indices = var.split('[', 1)
                         idx = indices.split(']', 1)[0]  # Multiple indices could be handled in the remainder here
-                        LOG.debug(f"get {var}[{idx}] in {raw_val}")
+                        LOG.info(f"get {var}[{idx}] in {raw_val}")
                         # Wildcard return all
                         if idx == '*':
-                            val = ', '.join(raw_val)
+                            # val = ', '.join(raw_val) # if raw_value is list, this turns val into str
+                            val = raw_val
                         # Get value at requested index
                         elif idx in range(0, len(raw_val)):
                             val = variables.get(var, [''])[idx]
@@ -2969,7 +2956,7 @@ class CustomConversations(MycroftSkill):
                     # new_word = f"{prefix}{new_word}{suffix}"
                     # new_word = clean_quotes(new_word)
 
-                    LOG.debug(f"replacing {token} with {new_word} in {line}")
+                    LOG.info(f"replacing {token} with {new_word} in {line}")
                     index = tokens.index(token)
                     tokens.remove(token)
                     tokens.insert(index, new_word)
