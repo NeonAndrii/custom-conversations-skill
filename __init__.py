@@ -42,7 +42,7 @@ from neon_utils.web_utils import scrape_page_for_links as scrape
 from neon_utils.parse_utils import clean_quotes
 # from NGI.utilities.parseUtils import clean_quotes
 from mycroft.util.parse import normalize
-from mycroft.util import play_wav
+from mycroft.util import play_wav, play_mp3
 
 
 # TIMEOUT = 8
@@ -2129,9 +2129,9 @@ class CustomConversations(MycroftSkill):
         :param text: variable to find associated utterance for
         :param message: incoming messagebus Message
         """
-
-        LOG.debug(f"DM: {text}")
-        LOG.debug(message.data.get("parser_data"))
+        LOG.info(f"RECONVEY EnTERED for {user} with {text} ")
+        LOG.info(f"DM: {text}")
+        LOG.info(message.data.get("parser_data"))
         if user not in self.active_conversations.keys():
             self._reset_values(user)
         active_dict = self.active_conversations[user]
@@ -2213,7 +2213,7 @@ class CustomConversations(MycroftSkill):
             #     flac_filename = message.context["flac_filename"]
             #     self.socket_io_emit("play_audio", file_to_play, flac_filename)
         else:
-            if message.context["mobile"]:
+            if message.context.get("mobile"):
                 # TODO: Handle sending audio data to mobile (non-server so can't assume public URL) DM
                 pass
             else:
@@ -2228,9 +2228,11 @@ class CustomConversations(MycroftSkill):
                 #     audio = self.configuration_available["dirVars"]["tempDir"] + f"/cc_tmp_{time.time()}"
                 #     open(audio, 'wb').write(audio_data.content)
                 if os.path.isfile(audio):
-                    process = play_wav(audio)
+                    LOG.info(f"The audio path is {audio}")
+                    process = play_mp3(audio)
                     while process and process.poll() is None:
                         time.sleep(0.2)
+                    LOG.info(f"Should have played {audio}")
                 else:
                     LOG.error(f"Audio file not found! {audio}")
                     self.speak(text)
@@ -3078,10 +3080,10 @@ class CustomConversations(MycroftSkill):
         #     if user in self.active_conversations.keys():
         #         active_dict["current"] = True
 
-    def converse(self, utterances, lang="en-us", message=None):
+    def converse(self, message=None):
         # LOG.info(f"UTTERANCES: {utterances}, MESSAGE {message}")
         user = self.get_utterance_user(message)
-
+        utterances = message.data.get('utterances')
         # message_cc_data = {"cc_data": {"signal_to_check": '',
         #                                "execute_from_script": False,
         #                                "raw_utterance": utterances[0]
