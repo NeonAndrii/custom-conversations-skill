@@ -1105,7 +1105,7 @@ class CustomConversations(MycroftSkill):
             LOG.debug(to_speak.data)
             self.active_conversations[user]["last_request"] = text
             self.create_signal(signal)
-            self.speak(text, message=to_speak)
+            self.speak(text, message=to_speak, wait=True)
             user_input = message.data.get("utterances")
             if user_input:
                 self.update_transcript(f'{datetime.datetime.now().isoformat()}, {user} said: \"{user_input[0]}\" \n',
@@ -3062,11 +3062,13 @@ class CustomConversations(MycroftSkill):
 
                         # If this is a 'Neon speak' event, wait for the utterance to be spoken
                         LOG.info(f'Waiting for {message.context["cc_data"]["signal_to_check"]}')
+                        # TODO: Try using wait_while_speaking instead of this while-loop
                         while self.check_for_signal(message.context["cc_data"]["signal_to_check"], -1) and \
                                 time.time() < timeout:
                             time.sleep(0.5)
                         LOG.debug("Done waiting.")
-                        self.check_for_signal(message.context["cc_data"]["signal_to_check"])
+                        self.clear_signals(message.context["cc_data"]["signal_to_check"])
+                        # message.context["cc_data"]["signal_to_check"] = ""
                         # LOG.debug(f"DM: Continue Script Execution Call")
                         self._continue_script_execution(message, user)
                     # LOG.info("CC: In speak duplicate")
