@@ -2187,7 +2187,7 @@ class CustomConversations(MycroftSkill):
                 audio = None
                 try:
                     LOG.debug(f'About to speak {active_dict["variables"][var_to_speak][0]}')
-                    self.speak(active_dict["variables"][var_to_speak][0])
+                    self.speak(active_dict["variables"][var_to_speak][0], wait=True)
                 except Exception as e:
                     LOG.error(e)
             LOG.debug(active_dict["variables"])
@@ -2219,7 +2219,7 @@ class CustomConversations(MycroftSkill):
             else:
 
                 # Skills will not block while speaking, so wait here to make sure reconveyed audio doesn't overlap
-                while self.check_for_signal("CORE_isSpeaking", 60):
+                while self.check_for_signal("isSpeaking", 60):
                     time.sleep(0.2)
 
                 # Handle server audio file references
@@ -2235,7 +2235,7 @@ class CustomConversations(MycroftSkill):
                     LOG.info(f"Should have played {audio}")
                 else:
                     LOG.error(f"Audio file not found! {audio}")
-                    self.speak(text)
+                    self.speak(text, wait=True)
 
         active_dict["current_index"] += 1
         # LOG.debug(f"DM: Continue Script Execution Call")
@@ -3063,7 +3063,7 @@ class CustomConversations(MycroftSkill):
                         # If this is a 'Neon speak' event, wait for the utterance to be spoken
                         LOG.info(f'Waiting for {message.context["cc_data"]["signal_to_check"]}')
                         # TODO: Try using wait_while_speaking instead of this while-loop
-                        while self.check_for_signal(message.context["cc_data"]["signal_to_check"], -1) and \
+                        while self.check_for_signal("isSpeaking", -1) and \
                                 time.time() < timeout:
                             time.sleep(0.5)
                         LOG.debug("Done waiting.")
@@ -3246,8 +3246,8 @@ class CustomConversations(MycroftSkill):
                     to_update = active_dict["variable_to_fill"]
                     # LOG.debug(f'about to prepend {assigned_value} to {to_update} '
                     #           f'= ({active_dict["variables"][to_update]})')
-                    LOG.debug(
-                        f"about to prepend {assigned_value} to {to_update} = ({active_dict['variables'][to_update]})")
+                    # LOG.debug(
+                    #     f"about to prepend {assigned_value} to {to_update} = ({active_dict['variables'][to_update]})")
                     # active_dict["variables"][active_dict["variable_to_fill"]] = assigned_value
 
                     # Push new value to front of list
