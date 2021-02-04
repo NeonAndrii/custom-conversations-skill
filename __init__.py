@@ -1022,7 +1022,7 @@ class CustomConversations(MycroftSkill):
             self.active_conversations[user]["last_request"] = text
             self.create_signal(signal)
             LOG.info(f"ABOUT TO SPEAK {text}")
-            self.speak(text, message=to_speak, wait=True)
+            self.speak(text, message=to_speak)
             # LOG.info(f"{text} SUCCESSFULLY SPOKEN")
             user_input = message.data.get("utterances")
             if user_input:
@@ -1104,7 +1104,7 @@ class CustomConversations(MycroftSkill):
             LOG.debug(to_speak.data)
             self.active_conversations[user]["last_request"] = text
             self.create_signal(signal)
-            self.speak(text, message=to_speak, wait=True)
+            self.speak(text, message=to_speak)
             user_input = message.data.get("utterances")
             if user_input:
                 self.update_transcript(f'{datetime.datetime.now().isoformat()}, {user} said: \"{user_input[0]}\" \n',
@@ -2186,7 +2186,7 @@ class CustomConversations(MycroftSkill):
                 audio = None
                 try:
                     LOG.debug(f'About to speak {active_dict["variables"][var_to_speak][0]}')
-                    self.speak(active_dict["variables"][var_to_speak][0], wait=True)
+                    self.speak(active_dict["variables"][var_to_speak][0])
                 except Exception as e:
                     LOG.error(e)
             LOG.debug(active_dict["variables"])
@@ -2234,7 +2234,7 @@ class CustomConversations(MycroftSkill):
                     LOG.info(f"Should have played {audio}")
                 else:
                     LOG.error(f"Audio file not found! {audio}")
-                    self.speak(text, wait=True)
+                    self.speak(text)
 
         active_dict["current_index"] += 1
         # LOG.debug(f"DM: Continue Script Execution Call")
