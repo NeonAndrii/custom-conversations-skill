@@ -2905,8 +2905,8 @@ class CustomConversations(MycroftSkill):
                         LOG.info(f"get {var}[{idx}] in {raw_val}")
                         # Wildcard return all
                         if idx == '*':
-                            # val = ', '.join(raw_val) # if raw_value is list, this turns val into str
-                            val = raw_val
+                            val = ', '.join(raw_val) # if raw_value is list, this turns val into str
+                            # val = raw_val
                         # Get value at requested index
                         elif idx in range(0, len(raw_val)):
                             val = variables.get(var, [''])[idx]
@@ -2941,10 +2941,10 @@ class CustomConversations(MycroftSkill):
 
                     # If variable is a list (no index requested), use the first element
                     if isinstance(val, list):
-                        # if len(val) > 1 and message.data["cc_data"].get("return_list", False):
-                        #     new_word = ",".join(variables.get(var))
-                        # else:
-                        new_word = str(val[0]).strip().strip('"')
+                        if len(val) > 1 and message.data.get("cc_data", {}).get("return_list", False):
+                            new_word = ",".join(variables.get(var))
+                        else:
+                            new_word = str(val[0]).strip().strip('"')
                     else:
                         LOG.error(f"Value is string and should be list! {val}")
                         new_word = str(val).strip().strip('"')
